@@ -1,0 +1,163 @@
+/* Overrides to map dark/black utilities to orange palette
+   This is a plain CSS fallback so you can see the theme change without
+   running Vite/Tailwind. Include this after the compiled app CSS.
+*/
+
+.bg-black, .hover\:bg-black:hover, .bg-\[\#1b1b18\] {
+    background-color: #f97316 !important; /* orange-500 */
+}
+
+.bg-gray-900, .bg-gray-800 {
+    background-color: #ea580c !important; /* orange-600 (darker) */
+}
+
+.border-black, .hover\:border-black:hover, .border-gray-700 {
+    border-color: #f97316 !important;
+}
+
+.text-black {
+    color: #ea580c !important; /* orange-600 */
+}
+
+.bg-black.bg-opacity-50, .bg-black.bg-opacity-40, .bg-black.bg-opacity-75 {
+    background-color: rgba(249,115,22,0.5) !important; /* rgba(#f97316, 0.5) */
+}
+
+/* Shopee-like theme overrides */
+:root{
+    --shopee-orange: #ff6a00;
+    --shopee-orange-dark: #e65a00;
+    --shopee-dark: #1f2937;
+}
+
+/* Sidebar (left) — solid Shopee orange with white icons/text */
+.app-sidebar{
+    background: linear-gradient(180deg, var(--shopee-orange) 0%, var(--shopee-orange-dark) 100%) !important;
+    color: #fff !important;
+    width:56px !important;
+    padding: 12px !important;
+}
+.app-sidebar a{ color: #fff !important; font-size:12px !important; }
+.app-sidebar .rounded-lg{ background: transparent !important; padding:6px !important; }
+.app-sidebar .hover\:bg-slate-700:hover{ background: rgba(0,0,0,0.06) !important; }
+.app-sidebar .border-slate-700{ border-color: rgba(255,255,255,0.06) !important; }
+
+/* Topbar (header) */
+.topbar{
+    background: #fff;
+    border-bottom: 1px solid #eef2f6;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left:12px;
+    padding-right:12px;
+}
+.topbar .search-input{
+    flex: 1;
+    max-width: 560px;
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+}
+.topbar input[type="search"]{
+    width:100%;
+    padding: .375rem .5rem;
+    border-radius: 6px;
+    border: 1px solid #e6edf3;
+    font-size: 13px;
+}
+.topbar .search-btn{
+    background: var(--shopee-orange);
+    color: #fff;
+    padding: .375rem .5rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+}
+
+/* Card style to match marketplace look */
+.card, .card-like, .rounded-lg.bg-white.p-6{
+    background: #fff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 10px rgba(14,20,24,0.05) !important;
+    padding: 12px !important;
+}
+
+/* Metric/wrapper tweaks */
+.p-8 .grid > div, .p-8 .flex > div{
+    border-radius: 8px;
+}
+
+/* Footer button style (logout) in sidebar */
+.app-sidebar .text-red-400{ color: rgba(255,255,255,0.95) !important; }
+.app-sidebar .bg-slate-700{ background: rgba(255,255,255,0.04) !important; }
+
+/* main margin adjusted for compact sidebar */
+.main-compact{ margin-left: 56px !important; }
+
+/* smaller fonts across metrics */
+.p-8 .text-3xl{ font-size: 1.15rem !important; }
+.p-8 .text-4xl{ font-size: 1.6rem !important; }
+.p-8 .text-xl{ font-size: .9rem !important; }
+
+/* Hide labels in compact sidebar and center icons */
+.app-sidebar .menu-label{ display: inline-block; }
+.app-sidebar .menu-label{ display: none !important; }
+.app-sidebar a{ justify-content: center !important; }
+.app-sidebar .mb-6{ align-items: center !important; }
+.app-sidebar h1{ justify-content: center !important; }
+
+/* Search suggestions dropdown */
+.search-suggestions{
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e6edf3;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(14,20,24,0.08);
+    z-index: 60;
+    max-height: 320px;
+    overflow: auto;
+}
+.search-suggestions .item{ display:flex; gap:8px; padding:8px; align-items:center; cursor:pointer; }
+.search-suggestions .item:hover{ background:#f3f6fb; }
+.search-suggestions img{ width:48px; height:48px; object-fit:cover; border-radius:6px; }
+.search-suggestions .meta{ font-size:13px; }
+.search-suggestions .meta .name{ font-weight:600; }
+.search-suggestions .meta .price{ color:#0f5132; font-weight:700; }
+
+/* Dashboard compact styling */
+.dashboard .kpi { padding: 12px; border-radius:8px; }
+.dashboard h1{ font-size:1.6rem; }
+.dashboard .kpi h3{ font-size:1.25rem; }
+.dashboard ul li img{ width:40px; height:40px; border-radius:6px; }
+
+.kpi-icon{ display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; transition:transform .18s ease, background .18s ease; }
+.kpi-icon svg{ display:block; }
+.kpi-icon:hover{ transform: translateY(-4px) scale(1.06); background: rgba(59,130,246,0.06); }
+
+/* Modal centering fallback for the logout modal */
+#logout-modal{ display:none; }
+#logout-modal[style*="display:flex"]{ display:flex !important; }
+
+
+
+
+/* Login page specific tweaks */
+.login-brand{ font-weight:800 }
+.login-card .social img, .login-card img{ width:20px; height:20px }
+.login-gradient-text{ background: linear-gradient(90deg,#fb923c,#fb923c); -webkit-background-clip: text; background-clip: text; color: transparent }
+.login-card .input-focus:focus{ box-shadow: 0 6px 20px rgba(251,146,60,0.12); }
+
+
+/* Social button styling */
+.social-btn{ background:#fff; display:inline-flex; gap:.5rem; align-items:center; justify-content:center; padding:.5rem 0.75rem; }
+.social-btn img{ width:20px; height:20px }
+.social-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 16px rgba(14,20,24,0.06); }
+.social-btn:active{ transform:translateY(0); }
+
+
+

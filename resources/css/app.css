@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Theme overrides: map Tailwind "blue" utilities to orange palette */
+/* Uses !important so these overrides take effect without editing many templates */
+.bg-blue-400, .from-blue-400 {
+    background-color: #fb923c !important;
+}
+.bg-blue-500 {
+    background-color: #f97316 !important;
+}
+.bg-blue-600 {
+    background-color: #ea580c !important;
+}
+.hover\:bg-blue-600:hover {
+    background-color: #ea580c !important;
+}
+.text-blue-100 {
+    color: #ffedd5 !important;
+}
+.text-blue-200 {
+    color: #fed7aa !important;
+}
+.text-blue-300 {
+    color: #fdba74 !important;
+}
+.text-blue-400 {
+    color: #fb923c !important;
+}
+.text-blue-600 {
+    color: #ea580c !important;
+}
+.border-blue-500 {
+    border-color: #f97316 !important;
+}
+.from-blue-400 {
+    --tw-gradient-from: #fb923c !important;
+}
+.to-blue-600 {
+    --tw-gradient-to: #ea580c !important;
+}
+.text-blue-600 {
+    color: #ea580c !important;
+}
+
+/* Also map utility variants used as className fragments (text-blue-600 etc.) */
+.text-blue-600 {
+    color: #ea580c !important;
+}
+
+
+/* === Black / dark -> Orange theme overrides ===
+   Map commonly-used "black" and dark gray utility classes to the
+   orange palette so the sidebar and other dark UI areas become orange.
+   Use !important to ensure these take precedence over generated utilities.
+*/
+.bg-black, .hover\:bg-black:hover, .bg-\[\#1b1b18\] {
+    background-color: #f97316 !important; /* orange-500 */
+}
+
+.bg-gray-900, .bg-gray-800 {
+    background-color: #ea580c !important; /* orange-600 (darker) */
+}
+
+.border-black, .hover\:border-black:hover, .border-gray-700 {
+    border-color: #f97316 !important;
+}
+
+/* Keep text readable: map explicit text-black to a dark orange so it
+   still contrasts on light backgrounds; most places will still use
+   text-white on the orange backgrounds from above. */
+.text-black {
+    color: #ea580c !important; /* orange-600 */
+}
+
+/* Special-case overlay (e.g. "bg-black bg-opacity-50") to become semi-transparent orange */
+.bg-black.bg-opacity-50, .bg-black.bg-opacity-40, .bg-black.bg-opacity-75 {
+    background-color: rgba(249,115,22,0.5) !important; /* rgba(#f97316, 0.5) */
+}
+
