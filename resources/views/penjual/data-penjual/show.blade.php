@@ -43,6 +43,15 @@
         <div class="bg-white rounded-2xl shadow-lg p-6">
             <h3 class="text-2xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">📋 Informasi Pribadi</h3>
 
+            <!-- Foto Profil -->
+            <div class="mb-6 text-center">
+                <div class="inline-block">
+                    <img src="{{ $penjual->foto_url }}" alt="Foto {{ $penjual->nama }}"
+                         class="w-32 h-32 rounded-full object-cover border-4 border-blue-100 shadow-lg mx-auto">
+                    <p class="text-gray-500 text-sm mt-2">Foto Profil</p>
+                </div>
+            </div>
+
             <div class="space-y-4">
                 <div>
                     <p class="text-gray-600 text-sm">Nama Lengkap</p>

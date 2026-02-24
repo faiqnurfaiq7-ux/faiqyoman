@@ -1,156 +1,85 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gray-100 p-8">
+<div class="min-h-screen bg-gray-100 p-6">
     <!-- Dashboard Kasir Header -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-4xl font-bold text-gray-800">📊 Dashboard Kasir</h1>
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">📊 Dashboard Kasir</h1>
             <div class="text-right">
-                <p class="text-gray-600">Tanggal: {{ now()->format('d M Y') }}</p>
-                <p class="text-gray-600">Waktu: <span id="current-time">{{ now()->format('H:i:s') }}</span></p>
+                <p class="text-gray-600 text-sm">Tanggal: {{ now()->format('d M Y') }}</p>
+                <p class="text-gray-600 text-sm">Waktu: <span id="current-time">{{ now()->format('H:i:s') }}</span></p>
             </div>
         </div>
 
         <!-- Statistik Ringkas Hari Ini -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm">Transaksi Hari Ini</p>
-                        <h3 class="text-3xl font-bold text-blue-600">{{ $totalTransactionsToday }}</h3>
+                        <h3 class="text-2xl font-bold text-blue-600">{{ $totalTransactionsToday }}</h3>
                     </div>
-                    <div class="text-5xl text-blue-200">📝</div>
+                    <div class="text-3xl text-blue-200">📝</div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+            <div class="bg-white p-4 rounded-lg shadow">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm">Pendapatan Hari Ini</p>
-                        <h3 class="text-2xl font-bold text-green-600">Rp {{ number_format($totalRevenueToday, 0, ',', '.') }}</h3>
+                        <h3 class="text-xl font-bold text-green-600">Rp {{ number_format($totalRevenueToday, 0, ',', '.') }}</h3>
                     </div>
-                    <div class="text-5xl text-green-200">💰</div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">Rata-rata Transaksi</p>
-                        <h3 class="text-2xl font-bold text-yellow-600">Rp {{ number_format($avgTransactionToday, 0, ',', '.') }}</h3>
-                    </div>
-                    <div class="text-5xl text-yellow-200">📊</div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">Item Terjual</p>
-                        <h3 class="text-3xl font-bold text-purple-600">{{ $totalItemsSoldToday }}</h3>
-                    </div>
-                    <div class="text-5xl text-purple-200">📦</div>
+                    <div class="text-3xl text-green-200">💰</div>
                 </div>
             </div>
         </div>
 
-        <!-- Dashboard Row: Chart + Info -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Chart: Transaksi Per Jam -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">📈 Transaksi Per Jam Hari Ini</h3>
-                <canvas id="chartHourlyTransactions" height="80"></canvas>
-            </div>
-
-            <!-- Info: Top Produk & Metode Pembayaran -->
-            <div class="space-y-4">
-                <!-- Top Produk Hari Ini -->
-                <div class="bg-white p-6 rounded-2xl shadow">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">🏆 Top Produk Hari Ini</h3>
-                    <div class="space-y-2">
-                        @forelse($topProductsToday as $product)
-                        <div class="flex justify-between items-center text-sm border-b pb-2">
-                            <span class="font-semibold text-gray-700">{{ $product->nama }}</span>
-                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ $product->qty }} unit</span>
-                        </div>
-                        @empty
-                        <p class="text-gray-400 text-center text-sm">Belum ada transaksi</p>
-                        @endforelse
-                    </div>
-                </div>
-
-                <!-- Metode Pembayaran Hari Ini -->
-                <div class="bg-white p-6 rounded-2xl shadow">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">💳 Metode Pembayaran</h3>
-                    <div class="space-y-2">
-                        @php
-                            $methods = ['QRIS' => ['icon' => '💳', 'label' => 'QRIS'], 'BANK' => ['icon' => '🏦', 'label' => 'Bank'], 'PAYLETTER' => ['icon' => '📱', 'label' => 'PayLetter'], 'CASH' => ['icon' => '💵', 'label' => 'Cash']];
-                        @endphp
-                        @foreach($methods as $key => $method)
-                            @php $data = $paymentBreakdown[$key] ?? null; @endphp
-                            <div class="flex justify-between items-center text-sm border-b pb-2">
-                                <span class="font-semibold text-gray-700">{{ $method['icon'] }} {{ $method['label'] }}</span>
-                                <div class="text-right">
-                                    <p class="font-bold">{{ $data ? $data['count'] : 0 }}</p>
-                                    <p class="text-xs text-gray-500">Rp {{ number_format($data ? $data['total'] : 0, 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Menu Cepat & Akses -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">⚡ Menu Cepat</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <a href="{{ route('kasir.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-2xl shadow transition text-center">
-                    <div class="text-3xl mb-2">🛒</div>
-                    <span class="font-semibold">Kasir</span>
-                </a>
-                <a href="{{ route('penjual.index') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white p-4 rounded-2xl shadow transition text-center">
-                    <div class="text-3xl mb-2">📈</div>
-                    <span class="font-semibold">Penjual</span>
-                </a>
-                <a href="{{ route('laporan.index') }}" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl shadow transition text-center">
-                    <div class="text-3xl mb-2">📊</div>
-                    <span class="font-semibold">Laporan</span>
-                </a>
-                <a href="{{ route('produk.index') }}" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-2xl shadow transition text-center">
-                    <div class="text-3xl mb-2">📦</div>
-                    <span class="font-semibold">Produk</span>
-                </a>
-                <a href="{{ route('pelanggan.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-2xl shadow transition text-center">
-                    <div class="text-3xl mb-2">👥</div>
-                    <span class="font-semibold">Pelanggan</span>
-                </a>
-            </div>
+        <!-- Chart Utama -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">📈 Transaksi Per Jam Hari Ini</h3>
+            <canvas id="chartHourlyTransactions" height="60"></canvas>
         </div>
     </div>
 
     <!-- Separator -->
     <hr class="my-8 border-gray-300">
 
+    <!-- Flash Messages -->
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" id="success-message">
+            ✅ {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" id="error-message">
+            ❌ {{ session('error') }}
+        </div>
+    @endif
+
     <!-- Menu Penjualan (Kasir Section) -->
-    <h2 class="text-3xl font-bold mb-6 flex items-center">
+    <h2 class="text-2xl font-bold mb-4 flex items-center">
         🛍️ Menu Penjualan
     </h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Bagian kiri: daftar produk -->
         <div class="md:col-span-2">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <input type="text" id="search-produk" placeholder="🔍 Cari produk..." class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="produk-grid">
                 @foreach ($produk as $item)
-                <div class="bg-white shadow-md rounded-2xl p-4 text-center hover:shadow-lg transition transform hover:scale-105">
-                    <img src="{{ $item->foto_url }}" alt="{{ $item->nama }}" class="w-20 h-20 object-cover rounded mx-auto mb-3">
-                    <h3 class="font-semibold text-gray-800 truncate">{{ $item->nama }}</h3>
-                    <p class="text-sm text-gray-500 mb-2">Stok: <span class="font-bold text-{{ $item->stok > 0 ? 'green' : 'red' }}-600">{{ $item->stok }}</span></p>
-                    <p class="text-blue-600 font-bold mb-3">Rp {{ number_format($item->harga, 0, ',', '.') }}</p>
-                    <button onclick="bukaModalPembelian({{ $item->id }}, '{{ $item->nama }}', {{ $item->harga }}, {{ $item->stok }})"
+                <div class="produk-item bg-white shadow rounded-lg p-3 text-center hover:shadow-md transition" data-nama="{{ strtolower($item->nama) }}">
+                    <img src="{{ $item->foto_url }}" alt="{{ $item->nama }}" class="w-16 h-16 object-cover rounded mx-auto mb-2">
+                    <h3 class="font-semibold text-gray-800 text-sm truncate">{{ $item->nama }}</h3>
+                    <p class="text-xs text-gray-500 mb-1">Stok: <span class="font-bold text-{{ $item->stok > 0 ? 'green' : 'red' }}-600">{{ $item->stok }}</span></p>
+                    <p class="text-blue-600 font-bold text-sm mb-2">Rp {{ number_format($item->harga, 0, ',', '.') }}</p>
+                    <button onclick="tambahKeranjang({{ $item->id }}, '{{ $item->nama }}', {{ $item->harga }}, 1)"
                         {{ $item->stok == 0 ? 'disabled' : '' }}
-                        class="w-full {{ $item->stok == 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600' }} text-white px-3 py-2 rounded-xl text-sm font-semibold transition">
+                        class="w-full {{ $item->stok == 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600' }} text-white px-2 py-1 rounded text-xs font-semibold transition">
                         {{ $item->stok == 0 ? '❌ Habis' : '🛒 Beli' }}
                     </button>
                 </div>
@@ -159,59 +88,77 @@
         </div>
 
         <!-- Bagian kanan: keranjang -->
-        <div class="bg-white p-6 rounded-2xl shadow-md">
-            <h3 class="text-xl font-bold mb-4">🧾 Keranjang</h3>
-            <div id="keranjang-list" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                <p class="text-gray-400 text-center" id="empty-cart">Belum ada item 😅</p>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-lg font-bold mb-3">🧾 Keranjang</h3>
+            <div id="keranjang-list" class="space-y-2 mb-3 max-h-48 overflow-y-auto">
+                <p class="text-gray-400 text-center text-sm" id="empty-cart">Belum ada item 😅</p>
             </div>
-            <hr class="my-4">
-            <div class="bg-blue-100 p-3 rounded-lg mb-4">
-                <div class="flex justify-between font-bold text-xl text-blue-900">
+            <hr class="my-3">
+            <div class="bg-blue-100 p-2 rounded mb-3">
+                <div class="flex justify-between font-bold text-lg text-blue-900">
                     <span>Total:</span>
                     <span id="total">Rp 0</span>
                 </div>
-                <div class="flex justify-between text-sm text-blue-700 mt-1">
+                <div class="flex justify-between text-xs text-blue-700 mt-1">
                     <span>Item:</span>
                     <span id="total-items">0</span>
                 </div>
             </div>
 
             <!-- Input nama pembeli -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pembeli (opsional):</label>
-                <input id="buyer-name" type="text" placeholder="Masukkan nama pembeli" class="w-full px-3 py-2 border rounded-lg" />
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pembeli (opsional):</label>
+                <input id="buyer-name" type="text" placeholder="Masukkan nama pembeli" class="w-full px-2 py-1 border rounded text-sm" />
             </div>
 
             <!-- Pilihan Metode Pembayaran -->
-            <div class="mt-6 mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Metode Pembayaran:</label>
-                <div class="space-y-2">
-                    <label class="flex items-center">
-                        <input type="radio" name="payment_method" value="QRIS" checked class="mr-2">
-                        <span class="text-sm">💳 QRIS</span>
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Metode Pembayaran:</label>
+                <div class="space-y-1">
+                    <label class="flex items-center text-sm">
+                        <input type="radio" name="payment_method" value="QRIS" checked class="mr-1">
+                        <span>💳 QRIS</span>
                     </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="payment_method" value="CASH" class="mr-2">
-                        <span class="text-sm">💵 Cash</span>
+                    <label class="flex items-center text-sm">
+                        <input type="radio" name="payment_method" value="CASH" class="mr-1">
+                        <span>💵 Cash</span>
                     </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="payment_method" value="BANK" class="mr-2">
-                        <span class="text-sm">🏦 Bank Transfer</span>
+                    <label class="flex items-center text-sm">
+                        <input type="radio" name="payment_method" value="BANK" class="mr-1">
+                        <span>🏦 Bank</span>
                     </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="payment_method" value="PAYLETTER" class="mr-2">
-                        <span class="text-sm">📱 PayLetter</span>
+                    <label class="flex items-center text-sm">
+                        <input type="radio" name="payment_method" value="PAYLETTER" class="mr-1">
+                        <span>📱 PayLetter</span>
                     </label>
                 </div>
             </div>
 
-            <div class="mt-3">
-                <button id="btn-scan-qris" onclick="openQrisScanner()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold">🔍 Scan QRIS</button>
-                <p id="qris-status" class="text-sm text-gray-500 mt-2 text-center">Belum memindai</p>
+            <div class="mb-3">
+                <button id="btn-scan-qris" onclick="openQrisScanner()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-1 rounded text-sm font-semibold">🔍 Scan QRIS</button>
+                <p id="qris-status" class="text-xs text-gray-500 mt-1 text-center">Belum memindai</p>
             </div>
 
-            <button onclick="checkout()"
-                class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold">
+            <button onclick="testCheckout()"
+                class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded font-semibold text-sm">
+                🧪 Test Checkout
+            </button>
+            <!-- Checkout Form -->
+            <form id="checkout-form" method="POST" action="/kasir" style="display: none;">
+                @csrf
+                <input type="hidden" name="items" id="form-items">
+                <input type="hidden" name="payment_method" id="form-payment-method">
+                <input type="hidden" name="buyer_name" id="form-buyer-name">
+                <input type="hidden" name="qris_payload" id="form-qris-payload">
+            </form>
+
+            <button onclick="testClick()"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded font-semibold text-sm mb-2">
+                🧪 Test Klik
+            </button>
+            <button onclick="doCheckout()"
+                class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded font-semibold text-sm mt-2"
+                id="btn-checkout">
                 💰 Selesaikan Transaksi
             </button>
         </div>
@@ -231,127 +178,94 @@
 </div>
 
 <!-- ===== MODAL NOTA / RECEIPT ===== -->
-<div id="modal-nota" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl w-96 p-6">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h3 class="text-lg font-bold">🧾 Nota Transaksi</h3>
-                <p class="text-sm text-gray-500">{{ config('app.name', 'Toko') }} · <span id="nota-time">-</span></p>
-            </div>
-            <button onclick="document.getElementById('modal-nota').classList.add('hidden')" class="text-sm text-gray-500">Tutup</button>
-        </div>
-
-        <!-- Nota header -->
-        <div class="mb-3 flex items-center gap-4">
-            @if (file_exists(public_path('images/logo.png')))
-                <img src="{{ asset('images/logo.png') }}" alt="logo" class="w-14 h-14 rounded" />
-            @else
-                <img src="{{ asset('images/logo-compact.png') }}" alt="logo" class="w-14 h-14 rounded" />
-            @endif
-            <div>
-                <p class="text-sm text-gray-500">Invoice:</p>
-                <p id="nota-invoice" class="font-semibold text-gray-800">-</p>
-                <div class="text-sm text-gray-600 mt-1">
-                    <span id="nota-buyer">-</span> · <span id="nota-metode">-</span>
-                </div>
-                <div class="text-xs text-gray-500 mt-1">
-                    <div>{{ config('app.name', 'Toko') }}</div>
-                    <div>{{ env('STORE_ADDRESS', 'Jl. Contoh No.1, Kota') }}</div>
-                    <div>{{ env('STORE_PHONE', '0812-3456-7890') }}</div>
-                    @if(env('STORE_NPWP'))
-                        <div>NPWP: {{ env('STORE_NPWP') }}</div>
-                    @endif
+<div id="modal-nota" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4 text-center relative">
+            <button onclick="cancelTransaction()" class="absolute left-3 top-3 text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition">
+                <span class="text-lg">↶</span>
+            </button>
+            <div class="flex items-center justify-center">
+                <span class="text-2xl mr-2">🧾</span>
+                <div>
+                    <h3 class="text-lg font-bold">NOTA TRANSAKSI</h3>
+                    <p class="text-blue-100 text-xs" id="nota-time">-</p>
                 </div>
             </div>
         </div>
 
-        <div class="mb-3">
-            <ul id="nota-items" class="list-none text-sm text-gray-700 mb-2">
-                <!-- JS will insert li elements like: <li class="flex justify-between"><span>Nama x qty</span><span>Rp ...</span></li> -->
-            </ul>
-            <div class="flex justify-between items-center mt-2">
-                <div class="text-sm font-semibold">Total</div>
-                <div id="nota-total" class="text-sm font-semibold text-green-600">-</div>
+        <!-- Content -->
+        <div class="p-4">
+            <!-- Invoice & Payment -->
+            <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-600">Invoice:</span>
+                    <span id="nota-invoice" class="font-bold text-gray-800">-</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Pembayaran:</span>
+                    <span id="nota-metode" class="font-semibold text-blue-600">-</span>
+                </div>
             </div>
-        </div>
 
-        <div class="mb-3">
-            <p class="text-sm text-gray-600">QRIS payload:</p>
-            <p id="nota-qris" class="text-xs text-gray-700 break-all">-</p>
-        </div>
+            <!-- Items List - Simplified -->
+            <div class="mb-3">
+                <div id="nota-items" class="space-y-1 text-sm">
+                    <!-- Items will be inserted here by JavaScript -->
+                </div>
+            </div>
 
-        <!-- Nota footer: return policy / terms -->
-        <div class="mt-4 pt-3 border-t text-xs text-gray-600">
-            <p class="font-semibold text-sm text-gray-700">Kebijakan Pengembalian (singkat):</p>
-            <p id="nota-return-short">Barang dapat dikembalikan dalam 14 hari jika cacat produksi atau salah kirim. Tunjukkan nota asli.</p>
-            <button onclick="toggleReturnPolicy()" class="mt-2 text-xs text-blue-600 underline">Lihat selengkapnya</button>
-            <div id="nota-return-full" class="hidden mt-2 text-xs text-gray-600">{{ env('STORE_RETURN_POLICY', 'Pengembalian barang diterima dalam jangka waktu 14 hari sejak tanggal pembelian dengan ketentuan: (1) pembeli menunjukkan nota asli; (2) barang dalam kondisi belum dipakai dan kemasan asli utuh; (3) pengembalian disebabkan cacat produksi atau kesalahan pengiriman. Untuk pengembalian yang bukan disebabkan oleh kesalahan toko, biaya pengiriman pengembalian menjadi tanggung jawab pembeli. Produk yang telah dibuka segel atau dipasang (mis. software, beberapa elektronik) tidak dapat dikembalikan.') }}</div>
-        </div>
+            <!-- Total - Prominent -->
+            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-3 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700 font-medium">Total:</span>
+                    <span id="nota-total" class="text-xl font-bold text-green-600">-</span>
+                </div>
+                <div class="text-center text-xs text-gray-500 mt-1">
+                    <span id="nota-item-count">0 item</span> • ✅ Lunas
+                </div>
+            </div>
 
-        <div class="flex gap-2">
-            <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded">Cetak</button>
-            <button onclick="document.getElementById('modal-nota').classList.add('hidden')" class="bg-gray-200 px-3 rounded">Tutup</button>
-        </div>
-    </div>
+            <!-- Thank You Message -->
+            <div class="text-center text-sm text-gray-600 mb-3">
+                <p class="font-medium">Terima Kasih! 🙏</p>
+                <p class="text-xs">{{ config('app.name', 'Toko') }}</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+                <button onclick="cancelTransaction()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium text-sm transition">
+                    ↶ Kembali
+                </button>
+                <button onclick="confirmTransaction()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium text-sm transition">
+                    ✅ Konfirmasi
+                </button>
+                <button onclick="printNota()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium text-sm transition">
+                    🖨️ Cetak
+                </button>
+            </div>
 </div>
 
 <script>
     let keranjang = [];
 
+    // ====== SEARCH FUNCTION ======
+    document.getElementById('search-produk').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const produkItems = document.querySelectorAll('.produk-item');
+        
+        produkItems.forEach(item => {
+            const nama = item.getAttribute('data-nama');
+            if (nama.includes(query)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
     function formatRupiah(angka) {
         return 'Rp ' + angka.toLocaleString('id-ID');
-    }
-
-    // ====== MODAL PEMBELIAN ======
-    function bukaModalPembelian(id, nama, harga, stok) {
-        document.getElementById('modal-produk-id').value = id;
-        document.getElementById('modal-produk-nama').textContent = nama;
-        document.getElementById('modal-produk-harga').textContent = formatRupiah(harga);
-        document.getElementById('modal-produk-stok').value = stok;
-        document.getElementById('modal-jumlah').value = 1;
-        document.getElementById('modal-jumlah').max = stok;
-        document.getElementById('modal-subtotal').textContent = formatRupiah(harga);
-        document.getElementById('modal-pembelian').classList.remove('hidden');
-    }
-
-    function tutupModalPembelian() {
-        document.getElementById('modal-pembelian').classList.add('hidden');
-    }
-
-    function updateSubtotal() {
-        const hargaText = document.getElementById('modal-produk-harga').textContent;
-        const harga = parseInt(hargaText.replace(/[^0-9]/g, ''));
-        const jumlah = parseInt(document.getElementById('modal-jumlah').value) || 1;
-        const subtotal = harga * jumlah;
-        document.getElementById('modal-subtotal').textContent = formatRupiah(subtotal);
-    }
-
-    function kurangiJumlah() {
-        const input = document.getElementById('modal-jumlah');
-        if (parseInt(input.value) > 1) {
-            input.value = parseInt(input.value) - 1;
-            updateSubtotal();
-        }
-    }
-
-    function tambahJumlah() {
-        const input = document.getElementById('modal-jumlah');
-        const stok = parseInt(document.getElementById('modal-produk-stok').value);
-        if (parseInt(input.value) < stok) {
-            input.value = parseInt(input.value) + 1;
-            updateSubtotal();
-        }
-    }
-
-    function konfirmasiPembelian() {
-        const id = parseInt(document.getElementById('modal-produk-id').value);
-        const nama = document.getElementById('modal-produk-nama').textContent;
-        const hargaText = document.getElementById('modal-produk-harga').textContent;
-        const harga = parseInt(hargaText.replace(/[^0-9]/g, ''));
-        const jumlah = parseInt(document.getElementById('modal-jumlah').value);
-
-        tambahKeranjang(id, nama, harga, jumlah);
-        tutupModalPembelian();
     }
 
     // ====== QRIS SCANNER (dynamic load html5-qrcode) ======
@@ -495,6 +409,13 @@
             keranjang.push({ id, nama, harga, jumlah });
         }
         renderKeranjang();
+
+        // Notifikasi sederhana
+        const notif = document.createElement('div');
+        notif.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+        notif.textContent = `✅ ${nama} ditambahkan ke keranjang`;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 2000);
     }
 
     function renderKeranjang() {
@@ -560,142 +481,163 @@
         renderKeranjang();
     }
 
-    function checkout() {
-        if (keranjang.length === 0) {
-            alert('Keranjang masih kosong!');
+    function testCheckout() {
+        alert('Test Checkout: Keranjang = ' + JSON.stringify(keranjang));
+        alert('Test Checkout: Payment method = ' + (document.querySelector('input[name="payment_method"]:checked')?.value || 'none'));
+        alert('Test Checkout: CSRF = ' + (document.querySelector('meta[name="csrf-token"]')?.content ? 'found' : 'not found'));
+    }
+
+    function showNota(data, paymentMethod, buyerName) {
+        try {
+            const invoice = data.invoice || '—';
+            const metode = data.payment_method || paymentMethod;
+            const totalText = document.getElementById('total').textContent || '';
+
+            console.log('Showing nota with data:', { invoice, metode, buyerName, totalText });
+
+            // isi detail nota
+            document.getElementById('nota-invoice').textContent = invoice;
+            document.getElementById('nota-metode').textContent = metode;
+            document.getElementById('nota-total').textContent = totalText;
+
+            // hitung total item
+            const totalItems = keranjang.reduce((sum, item) => sum + item.jumlah, 0);
+            document.getElementById('nota-item-count').textContent = `${totalItems} item`;
+
+            // daftar item dengan styling yang lebih simpel
+            const notaItems = document.getElementById('nota-items');
+            notaItems.innerHTML = '';
+            keranjang.forEach(it => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex justify-between py-1 border-b border-gray-100 last:border-b-0';
+                itemDiv.innerHTML = `
+                    <span class="text-gray-800">${it.nama} x ${it.jumlah}</span>
+                    <span class="font-medium text-gray-700">${formatRupiah(it.harga * it.jumlah)}</span>
+                `;
+                notaItems.appendChild(itemDiv);
+            });
+
+            // set timestamp dengan format yang lebih bagus
+            document.getElementById('nota-time').textContent = new Date().toLocaleString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Animasi muncul nota
+            setTimeout(() => {
+                document.getElementById('modal-nota').classList.remove('hidden');
+            }, 100);
+
+            // Simpan data keranjang untuk cancel
+            window.lastTransaction = {
+                keranjang: [...keranjang],
+                buyerName: buyerName,
+                paymentMethod: paymentMethod
+            };
+
+        } catch (error) {
+            console.error('Error showing nota:', error);
+            alert('❌ Terjadi kesalahan saat menampilkan nota: ' + error.message);
+        }
+    }
+
+    function cancelTransaction() {
+        if (confirm('Batalkan transaksi dan kembalikan keranjang?')) {
+            // Kembalikan keranjang ke kondisi sebelum transaksi
+            if (window.lastTransaction && window.lastTransaction.keranjang) {
+                keranjang = [...window.lastTransaction.keranjang];
+                renderKeranjang();
+            }
+
+            // Tutup modal nota
+            document.getElementById('modal-nota').classList.add('hidden');
+
+            // Reset data transaksi terakhir
+            window.lastTransaction = null;
+
+            alert('Transaksi dibatalkan. Keranjang dikembalikan.');
+        }
+    }
+
+    function confirmTransaction() {
+        // Tutup modal nota
+        document.getElementById('modal-nota').classList.add('hidden');
+
+        // Kosongkan keranjang setelah konfirmasi
+        keranjang = [];
+        renderKeranjang();
+        updateTotal();
+
+        // Reset data transaksi terakhir
+        window.lastTransaction = null;
+
+        alert('✅ Transaksi berhasil dikonfirmasi!');
+    }
+
+    function printNota() {
+        window.print();
+    }
+
+    function testClick() {
+        alert('Test klik berhasil! JavaScript berfungsi.');
+        console.log('Test click function called');
+    }
+
+    function doCheckout() {
+        alert('Tombol checkout diklik! Memproses...');
+
+        console.log('doCheckout called');
+
+        // Basic check - if cart is empty, alert and return
+        if (!keranjang || keranjang.length === 0) {
+            alert('Keranjang kosong!');
             return;
         }
 
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-        
-        if (!csrfToken) {
-            alert('❌ CSRF Token tidak ditemukan. Silakan refresh halaman.');
+        // Check payment method
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!paymentMethod) {
+            alert('Pilih metode pembayaran!');
             return;
         }
 
-        // Konversi keranjang ke format items untuk API
+        console.log('Preparing form data...');
+
+        // Prepare form data
         const items = keranjang.map(item => ({
             product_id: item.id,
             quantity: item.jumlah
         }));
 
-        console.log('Mengirim checkout:', {
-            items: items,
-            payment_method: paymentMethod,
-            csrf: csrfToken
-        });
+        const buyerName = document.getElementById('buyer-name').value || '';
 
-        // Kirim ke server
-        const buyerName = document.getElementById('buyer-name')?.value || null;
-        const payload = { items: items, payment_method: paymentMethod, buyer_name: buyerName };
-        if (paymentMethod === 'QRIS' && window.scannedQr) {
-            payload.qris_payload = window.scannedQr;
+        // Fill form
+        document.getElementById('form-items').value = JSON.stringify(items);
+        document.getElementById('form-payment-method').value = paymentMethod.value;
+        document.getElementById('form-buyer-name').value = buyerName;
+
+        // Add QRIS payload if available
+        if (paymentMethod.value === 'QRIS' && window.scannedQr) {
+            document.getElementById('form-qris-payload').value = window.scannedQr;
         }
 
-        fetch('/kasir', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                items: payload.items,
-                payment_method: payload.payment_method,
-                qris_payload: payload.qris_payload ?? null,
-                buyer_name: payload.buyer_name ?? null
-            })
-        })
-        .then(res => {
-            console.log('Response status:', res.status);
-            return res.json().catch(() => ({error: 'Invalid response from server'}));
-        })
-        .then(data => {
-            console.log('Response data:', data);
-            if (data.error) {
-                    alert('❌ Error: ' + data.error);
-            } else if (data.message || data.invoice) {
-                    // Tampilkan nota/receipt dalam modal
-                    const invoice = data.invoice || '—';
-                    const metode = data.payment_method || paymentMethod;
-                    const totalText = document.getElementById('total').textContent || '';
+        console.log('Form data ready, submitting...');
 
-                    // isi detail nota
-                    document.getElementById('nota-invoice').textContent = invoice;
-                    document.getElementById('nota-metode').textContent = metode;
-                    document.getElementById('nota-buyer').textContent = buyerName || '-';
-                    document.getElementById('nota-total').textContent = totalText;
-                    // daftar item
-                    const notaItems = document.getElementById('nota-items');
-                    notaItems.innerHTML = '';
-                    keranjang.forEach(it => {
-                        const li = document.createElement('li');
-                        li.className = 'flex justify-between py-1';
-                        li.innerHTML = `<span>${it.nama} x ${it.jumlah}</span><span>${formatRupiah(it.harga * it.jumlah)}</span>`;
-                        notaItems.appendChild(li);
-                    });
+        // Submit form
+        document.getElementById('checkout-form').submit();
+    }
 
-                    // qris payload
-                    document.getElementById('nota-qris').textContent = window.scannedQr ?? '-';
-                    // set timestamp
-                    document.getElementById('nota-time').textContent = new Date().toLocaleString('id-ID');
+    function simpleCheckout() {
+        doCheckout();
+    }
 
-                    document.getElementById('modal-nota').classList.remove('hidden');
-
-                    // reset cart but keep modal open so cashier dapat mencetak nota
-                    keranjang = [];
-                    renderKeranjang();
-                    document.getElementById('empty-cart').style.display = 'block';
-            } else {
-                alert('❌ Response tidak sesuai: ' + JSON.stringify(data));
-            }
-        })
-        .catch(err => {
-            console.error('Fetch error:', err);
-            alert('❌ Terjadi kesalahan saat mengirim transaksi:\n' + err.message);
-        });
+    function checkout() {
+        doCheckout();
     }
 </script>
-
-<!-- ===== MODAL PEMBELIAN PRODUK ===== -->
-<div id="modal-pembelian" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl w-96 p-8">
-        <h2 class="text-2xl font-bold mb-6">🛒 Pilih Jumlah Produk</h2>
-        
-        <input type="hidden" id="modal-produk-id">
-        <input type="hidden" id="modal-produk-stok">
-        
-        <div class="mb-4">
-            <p class="text-gray-600 text-sm">Produk:</p>
-            <p id="modal-produk-nama" class="text-xl font-bold text-gray-800 mb-2"></p>
-        </div>
-
-        <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-            <p class="text-gray-600 text-sm">Harga Satuan:</p>
-            <p id="modal-produk-harga" class="text-lg font-bold text-blue-600"></p>
-        </div>
-
-        <div class="mb-6">
-            <p class="text-gray-600 text-sm mb-2">Jumlah:</p>
-            <div class="flex items-center gap-4">
-                <button onclick="kurangiJumlah()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-lg font-bold">−</button>
-                <input type="number" id="modal-jumlah" value="1" min="1" max="10" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center text-lg font-bold" onchange="updateSubtotal()" oninput="updateSubtotal()">
-                <button onclick="tambahJumlah()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">+</button>
-            </div>
-        </div>
-
-        <div class="mb-6 p-4 bg-yellow-50 rounded-lg border-2 border-yellow-300">
-            <p class="text-gray-600 text-sm">Subtotal:</p>
-            <p id="modal-subtotal" class="text-2xl font-bold text-yellow-600"></p>
-        </div>
-
-        <div class="flex gap-3">
-            <button onclick="tutupModalPembelian()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg font-semibold">Batal</button>
-            <button onclick="konfirmasiPembelian()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold">✅ Tambah ke Keranjang</button>
-        </div>
-    </div>
-</div>
 
 <!-- ===== MODAL QRIS SCANNER ===== -->
 <div id="modal-qris" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -815,12 +757,71 @@ const chartHourly = new Chart(ctxHourly, {
     @media print {
         body * { visibility: hidden; }
         #modal-nota, #modal-nota * { visibility: visible; }
-        #modal-nota { position: absolute; left: 0; top: 0; width: 100%; }
+        #modal-nota {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: white !important;
+            box-shadow: none !important;
+            margin: 0;
+            padding: 0;
+        }
+        #modal-nota .max-w-sm {
+            max-width: none;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            box-shadow: none;
+        }
         .no-print { display: none !important; }
+        /* Hide action buttons when printing */
+        #modal-nota button { display: none !important; }
     }
-    /* Nota styles for screen */
-    #modal-nota .w-96 { width: 380px; }
-    #modal-nota table td, #modal-nota table th { padding: 6px 0; }
+
+    /* Enhanced nota styles for screen */
+    #modal-nota {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    #modal-nota .bg-blue-600 {
+        background: #2563eb;
+    }
+
+    #modal-nota .rounded-2xl {
+        border-radius: 1rem;
+    }
+
+    /* Smooth animations */
+    #modal-nota button {
+        transition: all 0.2s ease-in-out;
+    }
+
+    #modal-nota button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Simple item styling */
+    #nota-items > div {
+        transition: all 0.2s ease-in-out;
+    }
+
+    #nota-items > div:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
 </style>
 <script>
     function toggleReturnPolicy() {
@@ -835,4 +836,29 @@ const chartHourly = new Chart(ctxHourly, {
             short.classList.remove('hidden');
         }
     }
+
+    // Simple initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded - checkout ready');
+
+        // Auto-hide flash messages after 5 seconds
+        const successMsg = document.getElementById('success-message');
+        const errorMsg = document.getElementById('error-message');
+
+        if (successMsg) {
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+            // Clear cart on successful transaction
+            keranjang = [];
+            renderKeranjang();
+            updateTotal();
+        }
+
+        if (errorMsg) {
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+    });
 </script>

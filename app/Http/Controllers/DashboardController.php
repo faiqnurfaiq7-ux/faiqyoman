@@ -33,28 +33,6 @@ class DashboardController extends Controller
         // Total pelanggan
         $totalPelanggan = Pelanggan::count();
 
-        // Transaksi 7 hari terakhir
-        $last7DaysTransactions = Transaction::where('created_at', '>=', now()->subDays(7))
-            ->selectRaw('DATE(created_at) as tanggal, COUNT(*) as count, SUM(total_amount) as total')
-            ->groupBy('tanggal')
-            ->orderBy('tanggal', 'asc')
-            ->get();
-
-        $chartDays = $last7DaysTransactions->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M'))->toArray();
-        $chartCounts = $last7DaysTransactions->pluck('count')->map(fn($v) => (int)$v)->toArray();
-        $chartTotals = $last7DaysTransactions->pluck('total')->map(fn($v) => (float)$v)->toArray();
-
-        // Top produk 7 hari terakhir
-        $topProducts = DB::table('transaction_details')
-            ->join('produk', 'transaction_details.product_id', '=', 'produk.id')
-            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
-            ->where('transactions.created_at', '>=', now()->subDays(7))
-            ->selectRaw('produk.id, produk.nama, produk.foto, SUM(transaction_details.quantity) as qty')
-            ->groupBy('transaction_details.product_id', 'produk.id', 'produk.nama', 'produk.foto')
-            ->orderBy('qty', 'desc')
-            ->limit(5)
-            ->get();
-
         return view('dashboard', compact(
             'totalTransactionsToday',
             'totalRevenueToday',
@@ -62,11 +40,7 @@ class DashboardController extends Controller
             'totalItemsSoldToday',
             'totalStok',
             'totalProduk',
-            'totalPelanggan',
-            'chartDays',
-            'chartCounts',
-            'chartTotals',
-            'topProducts'
+            'totalPelanggan'
         ));
     }
 }

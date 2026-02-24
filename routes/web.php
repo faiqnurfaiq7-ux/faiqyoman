@@ -32,11 +32,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
-// Profile (link/unlink social accounts)
-Route::middleware('auth')->group(function(){
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::post('/profile/unlink/{provider}', [ProfileController::class, 'unlink'])->name('profile.unlink');
-});
+// Test route for checkout (without auth for testing)
+Route::post('/test-checkout', function (Illuminate\Http\Request $request) {
+    \Log::info('Test checkout called', $request->all());
+    return response()->json([
+        'message' => 'Test checkout successful!',
+        'data' => $request->all(),
+        'timestamp' => now()
+    ]);
+})->withoutMiddleware(['App\Http\Middleware\VerifyCsrfToken']);
 
 // 🔹 ROUTE YANG PERLU LOGIN
 Route::middleware('auth')->group(function () {
@@ -46,8 +50,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
-    Route::post('/kasir', [KasirController::class, 'store'])->name('kasir.store');
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/social/{provider}', [ProfileController::class, 'unlinkSocial'])->name('profile.unlink_social');
+
+    Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index')->withoutMiddleware('auth');
+    Route::post('/kasir', [KasirController::class, 'store'])->name('kasir.store')->withoutMiddleware('auth');
         // Endpoint untuk decode QR image (fallback upload)
         Route::post('kasir/decode-qrcode', [\App\Http\Controllers\KasirController::class, 'decodeQrcode'])->name('kasir.decode_qrcode');
     Route::get('/kasir/laporan', [KasirController::class, 'laporan'])->name('kasir.laporan');

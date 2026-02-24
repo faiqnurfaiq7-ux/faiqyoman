@@ -47,4 +47,34 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.show')->with('error','Tidak ada akun ' . ucfirst($provider) . ' yang tertaut.');
     }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        // Handle foto upload
+        if ($request->hasFile('foto')) {
+            // Delete old foto if exists
+            if ($user->foto && file_exists(public_path('storage/' . $user->foto))) {
+                unlink(public_path('storage/' . $user->foto));
+            }
+
+            // Store new foto
+            $fotoPath = $request->file('foto')->store('profile', 'public');
+            $user->foto = $fotoPath;
+        }
+
+        $user->save();
+
+        return redirect()->route('profile.show')->with('success', 'Profile berhasil diperbarui!');
+    }
 }

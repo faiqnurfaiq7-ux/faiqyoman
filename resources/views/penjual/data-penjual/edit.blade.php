@@ -8,9 +8,21 @@
         <p class="text-gray-600">Perbarui informasi penjual: {{ $penjual->nama }}</p>
     </div>
 
+    <!-- Alert Error -->
+    @if ($errors->any())
+        <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-2xl shadow-lg">
+            <h3 class="font-bold mb-2">❌ Ada kesalahan dalam pengisian form:</h3>
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Form -->
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <form action="{{ route('penjual.data-penjual.update', $penjual) }}" method="POST">
+        <form action="{{ route('penjual.data-penjual.update', $penjual) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -45,6 +57,22 @@
                         <input type="tel" name="telepon" value="{{ old('telepon', $penjual->telepon) }}" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 @error('telepon') border-red-500 @enderror">
                         @error('telepon')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Foto Profil -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Foto Profil</label>
+                        @if($penjual->foto)
+                            <div class="mb-3">
+                                <img src="{{ $penjual->foto_url }}" alt="Foto {{ $penjual->nama }}" class="w-20 h-20 rounded-lg object-cover border">
+                            </div>
+                        @endif
+                        <input type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 @error('foto') border-red-500 @enderror">
+                        <p class="text-gray-500 text-xs mt-1">Format: JPG, PNG, GIF. Maksimal 2MB. Biarkan kosong jika tidak ingin mengubah foto.</p>
+                        @error('foto')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>

@@ -77,7 +77,20 @@ class KasirController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {        // Handle both JSON string and array format for items
+        $items = $request->items;
+        if (is_string($items)) {
+            $items = json_decode($items, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'Invalid items format'], 400);
+                } else {
+                    return redirect()->back()->with('error', 'Format item tidak valid');
+                }
+            }
+        }
+
+        $request->merge(['items' => $items]);
         $request->validate([
             'items' => 'required|array',
             'items.*.product_id' => 'exists:produk,id',
@@ -134,10 +147,27 @@ class KasirController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'Transaksi berhasil!', 'invoice' => $invoice, 'payment_method' => $request->payment_method]);
+
+            // Return JSON for AJAX or redirect with success for form submission
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Transaksi berhasil!',
+                    'invoice' => $invoice,
+                    'payment_method' => $request->payment_method,
+                    'transaction' => $transaction,
+                    'details' => $transaction->details()->with('produk')->get()
+                ]);
+            } else {
+                return redirect()->back()->with('success', 'Transaksi berhasil! Invoice: ' . $invoice);
+            }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 400);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['error' => $e->getMessage()], 400);
+            } else {
+                return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+            }
         }
     }
 

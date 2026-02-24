@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Penjual;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DataPenjualController extends Controller
 {
@@ -46,7 +47,14 @@ class DataPenjualController extends Controller
             'bank_account_name' => 'required|string|max:255',
             'komisi_persen' => 'required|numeric|min:0|max:100',
             'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle foto upload
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('penjual', 'public');
+            $validated['foto'] = $fotoPath;
+        }
 
         Penjual::create($validated);
 
@@ -97,7 +105,19 @@ class DataPenjualController extends Controller
             'bank_account_name' => 'required|string|max:255',
             'komisi_persen' => 'required|numeric|min:0|max:100',
             'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle foto upload
+        if ($request->hasFile('foto')) {
+            // Delete old foto if exists
+            if ($penjual->foto && \Storage::disk('public')->exists($penjual->foto)) {
+                \Storage::disk('public')->delete($penjual->foto);
+            }
+
+            $fotoPath = $request->file('foto')->store('penjual', 'public');
+            $validated['foto'] = $fotoPath;
+        }
 
         $penjual->update($validated);
 
